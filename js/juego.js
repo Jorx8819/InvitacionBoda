@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 💍 INVITACIÓN DE BODA MÁGICA - VERSIÓN FINAL CORREGIDA
+ * 💍 INVITACIÓN DE BODA MÁGICA
  * ============================================================================
  */
 
@@ -192,7 +192,7 @@ class EscenaJuego extends Phaser.Scene {
         const ms = ["¡BIENVENIDO, MUGGLE, A NUESTRA AVENTURA MÁGICA!", "LA INVITACIÓN TE ELIGIÓ A TI, COMO LA VARITA AL MAGO.", "JURAMOS SOLEMNEMENTE QUE ESTO SERÁ ÉPICO.", "EL 04.07.2026 NO ACEPTAMOS UN 'GAME OVER'.", "¡TODO EL MUNDO A FINCA PICO VIVERO!", "¡ERES UN CRACK! AHORA VE A CONFIRMAR."];
         
         this.monedas = this.physics.add.group();
-        const monedaY = 600 - 220; // Usamos 600 fijo para asegurar que no se mueva el suelo
+        const monedaY = 600 - 220; 
         const cajaY = 600 - 320;
         
         cp.forEach((px, i) => {
@@ -302,7 +302,7 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        // CORRECCIÓN: FIT asegura que el juego se adapte sin recortar contenido
+        
         mode: Phaser.Scale.FIT, 
         autoCenter: Phaser.Scale.CENTER_BOTH, 
         parent: 'game-container',
@@ -324,5 +324,6 @@ window.addEventListener('load', () => {
     }, 400); 
 
 });
+
 
 
