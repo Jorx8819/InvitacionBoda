@@ -323,7 +323,7 @@ class EscenaJuego extends Phaser.Scene {
         let m = "¡GUAU! ¡VIVAN LOS NOVIOS!\nTODOS LOS PERROS SON BIENVENIDOS";
         if (this.puntos >= 10) m = "¡INCREÍBLE! HAS RECOGIDO TODO EL AMOR.\n¡NOS VEMOS EL 4 DE JULIO!";
         this.txtPerro = this.add.text(this.perro.x, this.perro.y - 120, "", { 
-            fontSize: '24px', fill: '#ffd700', fontFamily: 'Cinzel Decorative', align: 'center', fontWeight: 'bold', stroke: '#000', strokeThickness: 5
+            fontSize: '32px', fill: '#ffd700', fontFamily: 'Cinzel Decorative', align: 'center', fontWeight: 'bold', stroke: '#000', strokeThickness: 5
         }).setOrigin(0.5).setDepth(9999);
         this.sndLadrido.play({ loop: true }); 
         let charIndex = 0;
