@@ -254,18 +254,27 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        mode: Phaser.Scale.FIT, // Modo FIT es el más seguro para todas las pantallas
+        mode: Phaser.Scale.FIT, 
         autoCenter: Phaser.Scale.CENTER_BOTH, 
         parent: 'game-container',
         width: 1024,
         height: 600
     },
-    physics: { default: 'arcade', arcade: { gravity: { y: 1900 }, debug: false } 
-            
+    physics: { 
+        default: 'arcade', 
+        arcade: { gravity: { y: 1900 }, debug: false } 
     },
-
     scene: [EscenaIntro, EscenaSeleccion, EscenaJuego]
 };
 
+// 1. Declaramos el juego (UNA SOLA VEZ)
 const game = new Phaser.Game(config);
-window.addEventListener('load', () => { setTimeout(() => { game.scale.refresh(); }, 400); });
+
+// 2. Ajuste de seguridad para iPhone/Tablets
+window.addEventListener('load', () => { 
+    setTimeout(() => { 
+        if (game.scale) {
+            game.scale.refresh(); 
+        }
+    }, 400); 
+});
