@@ -1,6 +1,7 @@
 /**
  * ============================================================================
- * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY (VERSIÓN MULTIDISPOSITIVO)
+ * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY
+ * VERSIÓN COMPLETA Y RESPONSIVA (RESIZE MODE)
  * ============================================================================
  */
 
@@ -20,17 +21,31 @@ class EscenaIntro extends Phaser.Scene {
         const midX = this.cameras.main.centerX;
         const midY = this.cameras.main.centerY;
         
-        this.add.image(midX, midY, 'fondo_menu').setDisplaySize(this.cameras.main.width, this.cameras.main.height).setAlpha(0.2);
+        this.fondo = this.add.image(midX, midY, 'fondo_menu').setAlpha(0.2);
+        this.actualizarEscalaFondo();
+
         this.sndEscribir = this.sound.add('sonido_escribir', { loop: true, volume: 0.5 });
         this.sndClic = this.sound.add('clic', { volume: 0.5 });
         
         WebFont.load({
             google: { families: ['Cinzel Decorative', 'Eagle Lake'] },
-            active: () => { this.prepararSobre(midX, midY); }
+            active: () => { this.prepararSobre(); }
         });
+
+        this.scale.on('resize', () => { this.actualizarEscalaFondo(); });
     }
-    prepararSobre(midX, midY) {
+
+    actualizarEscalaFondo() {
+        const { width, height } = this.cameras.main;
+        this.fondo.setPosition(width / 2, height / 2);
+        this.fondo.setDisplaySize(width, height);
+    }
+
+    prepararSobre() {
+        const midX = this.cameras.main.centerX;
+        const midY = this.cameras.main.centerY;
         const cSobre = 0x5d4037; 
+
         this.sobreContainer = this.add.container(midX, midY);
         this.trasera = this.add.rectangle(0, 0, 420, 280, cSobre).setStrokeStyle(4, 0x3e2723);
         this.textoAd = this.add.text(0, 0, 'SOLO PARA MAGOS\nY BRUJAS', { fontSize: '25px', fill: '#d4af37', align: 'center', fontFamily: 'Cinzel Decorative' }).setOrigin(0.5);
@@ -38,13 +53,16 @@ class EscenaIntro extends Phaser.Scene {
         this.solapa = this.add.graphics().setVisible(false).fillStyle(cSobre).lineStyle(4, 0x3e2723);
         this.solapa.fillTriangle(-210, 0, 210, 0, 0, 150).strokeTriangle(-210, 0, 210, 0, 0, 150);
         this.solapa.y = -140; 
+        
         this.papel = this.add.container(0, 0).setAlpha(0).setScale(0.1);
         const hoja = this.add.rectangle(0, 0, 380, 520, 0xfff4e0).setStrokeStyle(8, 0xd4af37); 
         this.textoMagico = this.add.text(0, 0, '', { fontSize: '24px', fill: '#1a0f0a', fontFamily: 'Eagle Lake', align: 'center', wordWrap: { width: 320 } }).setOrigin(0.5);
         this.papel.add([hoja, this.textoMagico]);
+        
         this.sobreContainer.add([this.papel, this.trasera, this.textoAd, this.frontal, this.solapa]);
         this.crearBotonCristalMistico(midX, midY + 180);
     }
+
     crearBotonCristalMistico(x, y) {
         this.btnContainer = this.add.container(x, y);
         const aura = this.add.graphics();
@@ -60,18 +78,24 @@ class EscenaIntro extends Phaser.Scene {
         const txt = this.add.text(0, 0, 'ABRIR', { fontSize: '28px', fontFamily: 'Cinzel Decorative', fill: '#ffd700', fontWeight: 'bold' }).setOrigin(0.5);
         this.btnContainer.add([this.emisorBot, fondo, txt]);
         fondo.setInteractive(new Phaser.Geom.Rectangle(-110, -35, 220, 70), Phaser.Geom.Rectangle.Contains);
-        fondo.on('pointerup', () => { if (this.sound.context.state === 'suspended') this.sound.context.resume(); this.sndClic.play(); this.iniciarAnimacionSobre(); this.btnContainer.destroy(); });
+        fondo.on('pointerup', () => { 
+            if (this.sound.context.state === 'suspended') this.sound.context.resume(); 
+            this.sndClic.play(); this.iniciarAnimacionSobre(); this.btnContainer.destroy(); 
+        });
     }
+
     iniciarAnimacionSobre() {
         this.tweens.add({ targets: this.sobreContainer, scaleX: 0, duration: 600, yoyo: true, onYoyo: () => { this.trasera.setVisible(false); this.textoAd.setVisible(false); this.frontal.setVisible(true); this.solapa.setVisible(true); }, onComplete: () => { this.tweens.add({ targets: this.solapa, scaleY: -1, duration: 600, onComplete: () => { this.papel.setPosition(this.cameras.main.centerX, this.cameras.main.centerY); this.sobreContainer.remove(this.papel); this.add.existing(this.papel).setDepth(100); this.tweens.add({ targets: this.papel, scale: 0.8, alpha: 1, angle: 360, duration: 1500, ease: 'Back.easeOut', onComplete: () => { this.escribirTexto("Habéis sido elegidos para presenciar la unión de dos almas mágicas...\n\n04.07.2026\n\n¿Aceptáis el desafío?"); } }); } }); } });
     }
+
     escribirTexto(m) {
         let i = 0; this.sndEscribir.play();
         this.time.addEvent({ delay: 50, repeat: m.length - 1, callback: () => { this.textoMagico.text += m[i]; i++; if (i === m.length) { this.sndEscribir.stop(); this.crearBotonEntrar(); } } });
     }
+
     crearBotonEntrar() {
         const midX = this.cameras.main.centerX;
-        const midY = this.cameras.main.height - 70; // Pegado al borde inferior para iPhone
+        const midY = this.cameras.main.height - 80; 
         const sello = this.add.circle(midX, midY, 50, 0x8b0000).setInteractive({ useHandCursor: true }).setDepth(200);
         this.add.text(midX, midY, 'ENTRAR', { fontSize: '20px', fontFamily: 'Cinzel Decorative', fill: '#ffd700' }).setOrigin(0.5).setDepth(201);
         sello.on('pointerup', () => { this.sndClic.play(); this.cameras.main.fadeOut(1000); this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('EscenaSeleccion')); });
@@ -89,9 +113,9 @@ class EscenaSeleccion extends Phaser.Scene {
         const midX = this.cameras.main.centerX;
         const midY = this.cameras.main.centerY;
         this.add.image(midX, midY, 'fondo_menu').setDisplaySize(this.cameras.main.width, this.cameras.main.height).setAlpha(0.5);
-        this.add.text(midX, 60, 'ELIGE TU PERSONAJE', { fontSize: '32px', fill: '#fff', fontFamily: 'Cinzel Decorative' }).setOrigin(0.5);
-        const n = this.add.image(midX - 150, midY + 30, 'btn_novio').setScale(1.4).setInteractive({ useHandCursor: true });
-        const m = this.add.image(midX + 150, midY + 30, 'btn_novia').setScale(1.4).setInteractive({ useHandCursor: true });
+        this.add.text(midX, 80, 'ELIGE TU PERSONAJE', { fontSize: '32px', fill: '#fff', fontFamily: 'Cinzel Decorative' }).setOrigin(0.5);
+        const n = this.add.image(midX - 160, midY, 'btn_novio').setScale(1.5).setInteractive({ useHandCursor: true });
+        const m = this.add.image(midX + 160, midY, 'btn_novia').setScale(1.5).setInteractive({ useHandCursor: true });
         n.on('pointerup', () => { personajeElegido = 'novio'; this.scene.start('EscenaJuego'); });
         m.on('pointerup', () => { personajeElegido = 'novia'; this.scene.start('EscenaJuego'); });
     }
@@ -131,37 +155,50 @@ class EscenaJuego extends Phaser.Scene {
         this.input.addPointer(3);
         const anchoNivel = 6000;
         this.juegoTerminado = false; this.puntos = 0; this.invulnerable = false;
-        this.bgLejano = this.add.tileSprite(0, 0, this.cameras.main.width, 600, 'lejano').setOrigin(0).setScrollFactor(0);
-        this.bgMedio = this.add.tileSprite(0, 0, this.cameras.main.width, 600, 'medio').setOrigin(0).setScrollFactor(0);
-        this.physics.world.setBounds(0, 0, anchoNivel, 600);
+        
+        // El fondo ahora usa la altura real de la pantalla
+        const screenH = this.cameras.main.height;
+        this.bgLejano = this.add.tileSprite(0, 0, this.cameras.main.width, screenH, 'lejano').setOrigin(0).setScrollFactor(0);
+        this.bgMedio = this.add.tileSprite(0, 0, this.cameras.main.width, screenH, 'medio').setOrigin(0).setScrollFactor(0);
+        
+        this.physics.world.setBounds(0, 0, anchoNivel, screenH);
         this.sueloGroup = this.physics.add.staticGroup();
-        for (let x = 0; x < anchoNivel; x += 32) { this.sueloGroup.create(x, 585, 'suelo').refreshBody(); }
+        for (let x = 0; x < anchoNivel; x += 32) { this.sueloGroup.create(x, screenH - 15, 'suelo').refreshBody(); }
+        
         this.plataformas = this.physics.add.group({ allowGravity: false, immovable: true });
         const cp = [1200, 2100, 3000, 3900, 4800];
-        cp.forEach(px => { let p = this.plataformas.create(px, 460, 'plataforma'); p.body.checkCollision.down = false; });
-        this.jugador = this.physics.add.sprite(100, 450, personajeElegido + '_frente').setCollideWorldBounds(true).setDepth(100);
-        this.pareja = this.physics.add.sprite(5850, 450, (personajeElegido === 'novio' ? 'novia' : 'novio') + '_frente').setDepth(100);
-        this.perro = this.physics.add.sprite(6000, 500, 'perro').setScale(0.8).setAlpha(0).setDepth(150).setFlipX(true);
+        cp.forEach(px => { let p = this.plataformas.create(px, screenH - 140, 'plataforma'); p.body.checkCollision.down = false; });
+        
+        this.jugador = this.physics.add.sprite(100, screenH - 150, personajeElegido + '_frente').setCollideWorldBounds(true).setDepth(100);
+        this.pareja = this.physics.add.sprite(5850, screenH - 150, (personajeElegido === 'novio' ? 'novia' : 'novio') + '_frente').setDepth(100);
+        this.perro = this.physics.add.sprite(6000, screenH - 100, 'perro').setScale(0.8).setAlpha(0).setDepth(150).setFlipX(true);
+        
         this.physics.add.collider(this.jugador, this.sueloGroup);
         this.physics.add.collider(this.jugador, this.plataformas);
         this.physics.add.collider(this.pareja, this.sueloGroup);
         this.physics.add.collider(this.perro, this.sueloGroup);
-        this.cameras.main.setBounds(0, 0, anchoNivel, 600);
+        
+        this.cameras.main.setBounds(0, 0, anchoNivel, screenH);
         this.cameras.main.startFollow(this.jugador, true, 0.1, 0.1, 0, 70);
+        
         this.textoPuntos = this.add.text(16, 16, 'MONEDAS: 0/10', { fontSize: '24px', fill: '#fff', fontFamily: 'Cinzel Decorative', stroke: '#000', strokeThickness: 4 }).setScrollFactor(0).setDepth(2000);
+        
         this.musicaFondo = this.sound.add('musica', { loop: true, volume: 0.1 });
         this.sndSalto = this.sound.add('salto', { volume: 0.4 });
         this.sndCaja = this.sound.add('sonido_caja', { volume: 0.5 });
         this.sndLadrido = this.sound.add('ladrido', { volume: 0.6 });
         this.sndCollect = this.sound.add('collect', { volume: 0.5 });
         this.sndBump = this.sound.add('bump', { volume: 0.5 });
+        
         this.configurarCajasYMonedas(cp); this.crearObstaculos(); this.crearControlesMovil();
         this.cursors = this.input.keyboard.createCursorKeys();
         this.physics.add.overlap(this.jugador, this.pareja, () => this.finalizarJuego());
     }
+
     crearControlesMovil() {
         this.btnIzq = false; this.btnDer = false; this.btnSalto = false;
-        const h = this.cameras.main.height; const w = this.cameras.main.width;
+        const h = this.cameras.main.height;
+        const w = this.cameras.main.width;
         const sb = (x, y, t, p) => {
             let b = this.add.circle(x, y, 60, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000).setInteractive();
             this.add.text(x, y, t, { fontSize: '40px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
@@ -171,19 +208,22 @@ class EscenaJuego extends Phaser.Scene {
         };
         sb(80, h - 80, '◀', 'btnIzq'); sb(200, h - 80, '▶', 'btnDer'); sb(w - 80, h - 80, '▲', 'btnSalto');
     }
+
     configurarCajasYMonedas(cp) {
+        const screenH = this.cameras.main.height;
         this.textoCartel = this.add.text(0, 0, '', { fontSize: '20px', fill: '#fff', backgroundColor: '#8b0000', padding: { x: 15, y: 10 }, align: 'center', wordWrap: { width: 300 } }).setOrigin(0.5, 1).setVisible(false).setDepth(2000).setStroke('#d4af37', 4);
         const tc = (personajeElegido === 'novio') ? 'caja_j' : 'caja_c';
         const ms = ["¡COMIENZA LA AVENTURA!", "CUIDADO CON LAS POCIONES...", "EL 4 DE JULIO DE 2026", "EN ARANJUEZ NOS VEMOS", "TRAED VUESTRAS VARITAS", "¡VIVAN LOS NOVIOS!"];
         this.monedas = this.physics.add.group();
         cp.forEach((px, i) => {
-            this.monedas.create(px, 380, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false);
-            let c = this.add.sprite(px + 60, 280, tc); this.physics.add.existing(c, true);
+            this.monedas.create(px, screenH - 220, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false);
+            let c = this.add.sprite(px + 60, screenH - 320, tc); this.physics.add.existing(c, true);
             c.mensaje = ms[i] || "¡MÁGICO!"; c.disponible = true; this.vincularColisionCaja(c);
         });
-        for(let j=0; j<5; j++) { this.monedas.create(600 + (j * 1100), 480, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false); }
+        for(let j=0; j<5; j++) { this.monedas.create(600 + (j * 1100), screenH - 120, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false); }
         this.physics.add.overlap(this.jugador, this.monedas, (p, m) => { m.destroy(); this.puntos++; this.textoPuntos.setText(`MONEDAS: ${this.puntos}/10`); this.sndCollect.play(); });
     }
+
     vincularColisionCaja(c) {
         this.physics.add.collider(this.jugador, c, (o1, o2) => {
             if (o1.body.touching.up && o2.body.touching.down && c.disponible) { 
@@ -194,11 +234,13 @@ class EscenaJuego extends Phaser.Scene {
             }
         });
     }
+
     crearObstaculos() {
+        const screenH = this.cameras.main.height;
         this.fantasmas = this.physics.add.group({ allowGravity: false });
         const pf = [1500, 2600, 3500, 4400, 5200];
         pf.forEach(dx => {
-            let f = this.fantasmas.create(dx, 530, 'fantasma').setScale(1.5);
+            let f = this.fantasmas.create(dx, screenH - 70, 'fantasma').setScale(1.5);
             this.tweens.add({ targets: f, x: dx + 300, duration: 2000, yoyo: true, repeat: -1 });
         });
         this.physics.add.overlap(this.jugador, this.fantasmas, () => {
@@ -209,6 +251,7 @@ class EscenaJuego extends Phaser.Scene {
             }
         });
     }
+
     update() {
         if (this.juegoTerminado) return;
         this.bgLejano.tilePositionX = this.cameras.main.scrollX * 0.3;
@@ -223,6 +266,7 @@ class EscenaJuego extends Phaser.Scene {
         }
         if (salto && this.jugador.body.touching.down) { this.jugador.setVelocityY(-850); this.sndSalto.play(); }
     }
+
     finalizarJuego() {
         if (this.juegoTerminado) return;
         this.juegoTerminado = true; this.jugador.setVelocity(0); this.textoPuntos.setVisible(false);
@@ -233,6 +277,7 @@ class EscenaJuego extends Phaser.Scene {
         this.perro.setAlpha(1);
         this.tweens.add({ targets: this.perro, x: this.pareja.x - 150, duration: 1500, onComplete: () => this.escribirMensajePerro() });
     }
+
     escribirMensajePerro() {
         let m = "¡GUAU! ¡VIVAN LOS NOVIOS!\nTODOS LOS PERROS SON BIENVENIDOS";
         if (this.puntos >= 10) m = "¡INCREÍBLE! HAS RECOGIDO TODO EL AMOR.\n¡NOS VEMOS EL 4 DE JULIO!";
@@ -241,8 +286,10 @@ class EscenaJuego extends Phaser.Scene {
         let ci = 0;
         this.time.addEvent({ delay: 70, repeat: m.length - 1, callback: () => { this.txtPerro.text += m[ci]; ci++; if (ci === m.length) { this.sndLadrido.stop(); this.mostrarBotonesFinales(); } } });
     }
+
     mostrarBotonesFinales() {
-        const mx = this.cameras.main.centerX; const my = this.cameras.main.centerY;
+        const mx = this.cameras.main.centerX;
+        const my = this.cameras.main.centerY;
         let bC = this.add.image(mx - 160, my, 'boton_confirmar').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         let bM = this.add.image(mx + 160, my, 'boton_localizacion').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         this.tweens.add({ targets: [bC, bM], scale: 0.8, duration: 800, ease: 'Back.easeOut' });
@@ -251,15 +298,14 @@ class EscenaJuego extends Phaser.Scene {
     }
 }
 
+// CONFIGURACIÓN FINAL ÚNICA
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        // Cambiamos FIT por ENVELOP para eliminar bordes negros
-        mode: Phaser.Scale.ENVELOP, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        mode: Phaser.Scale.RESIZE,
         parent: 'game-container',
-        width: 1024,
-        height: 600
+        width: '100%',
+        height: '100%'
     },
     physics: { 
         default: 'arcade', 
@@ -268,13 +314,10 @@ const config = {
     scene: [EscenaIntro, EscenaSeleccion, EscenaJuego]
 };
 
-// Asegúrate de tener esto SOLO UNA VEZ al final
 const game = new Phaser.Game(config);
 
-window.addEventListener('load', () => { 
-    setTimeout(() => { 
-        if (game.scale) {
-            game.scale.refresh(); 
-        }
-    }, 400); 
+window.addEventListener('resize', () => {
+    if (game.scale) {
+        game.scale.refresh();
+    }
 });
