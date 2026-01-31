@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY (VERSIÓN MÓVIL TOTAL)
+ * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY (VERSIÓN ORIGINAL RESTAURADA)
  * ============================================================================
  */
 
@@ -17,8 +17,10 @@ class EscenaIntro extends Phaser.Scene {
     }
     create() {
         this.sound.pauseOnBlur = false;
-        const midX = 600; const midY = 300;
-        this.add.image(midX, midY, 'fondo_menu').setDisplaySize(1200, 600).setAlpha(0.2);
+        const midX = this.cameras.main.width / 2; 
+        const midY = this.cameras.main.height / 2;
+        
+        this.add.image(midX, midY, 'fondo_menu').setDisplaySize(this.cameras.main.width, this.cameras.main.height).setAlpha(0.2);
         this.sndEscribir = this.sound.add('sonido_escribir', { loop: true, volume: 0.5 });
         this.sndClic = this.sound.add('clic', { volume: 0.5 });
         WebFont.load({
@@ -60,15 +62,17 @@ class EscenaIntro extends Phaser.Scene {
         fondo.on('pointerup', () => { if (this.sound.context.state === 'suspended') this.sound.context.resume(); this.sndClic.play(); this.iniciarAnimacionSobre(); this.btnContainer.destroy(); });
     }
     iniciarAnimacionSobre() {
-        this.tweens.add({ targets: this.sobreContainer, scaleX: 0, duration: 600, yoyo: true, onYoyo: () => { this.trasera.setVisible(false); this.textoAd.setVisible(false); this.frontal.setVisible(true); this.solapa.setVisible(true); }, onComplete: () => { this.tweens.add({ targets: this.solapa, scaleY: -1, duration: 600, onComplete: () => { this.papel.setPosition(600, 300); this.sobreContainer.remove(this.papel); this.add.existing(this.papel).setDepth(100); this.tweens.add({ targets: this.papel, scale: 1.1, alpha: 1, angle: 360, duration: 1500, ease: 'Back.easeOut', onComplete: () => { this.escribirTexto("Habéis sido elegidos para presenciar la unión de dos almas mágicas...\n\n04.07.2026\n\n¿Aceptáis el desafío?"); } }); } }); } });
+        this.tweens.add({ targets: this.sobreContainer, scaleX: 0, duration: 600, yoyo: true, onYoyo: () => { this.trasera.setVisible(false); this.textoAd.setVisible(false); this.frontal.setVisible(true); this.solapa.setVisible(true); }, onComplete: () => { this.tweens.add({ targets: this.solapa, scaleY: -1, duration: 600, onComplete: () => { this.papel.setPosition(this.cameras.main.width/2, this.cameras.main.height/2); this.sobreContainer.remove(this.papel); this.add.existing(this.papel).setDepth(100); this.tweens.add({ targets: this.papel, scale: 1.1, alpha: 1, angle: 360, duration: 1500, ease: 'Back.easeOut', onComplete: () => { this.escribirTexto("Habéis sido elegidos para presenciar la unión de dos almas mágicas...\n\n04.07.2026\n\n¿Aceptáis el desafío?"); } }); } }); } });
     }
     escribirTexto(m) {
         let i = 0; this.sndEscribir.play();
         this.time.addEvent({ delay: 50, repeat: m.length - 1, callback: () => { this.textoMagico.text += m[i]; i++; if (i === m.length) { this.sndEscribir.stop(); this.crearBotonEntrar(); } } });
     }
     crearBotonEntrar() {
-        const sello = this.add.circle(600, 500, 50, 0x8b0000).setInteractive({ useHandCursor: true }).setDepth(200);
-        this.add.text(600, 500, 'ENTRAR', { fontSize: '20px', fontFamily: 'Cinzel Decorative', fill: '#ffd700' }).setOrigin(0.5).setDepth(201);
+        const midX = this.cameras.main.width / 2;
+        const midY = this.cameras.main.height - 100;
+        const sello = this.add.circle(midX, midY, 50, 0x8b0000).setInteractive({ useHandCursor: true }).setDepth(200);
+        this.add.text(midX, midY, 'ENTRAR', { fontSize: '20px', fontFamily: 'Cinzel Decorative', fill: '#ffd700' }).setOrigin(0.5).setDepth(201);
         sello.on('pointerup', () => { this.sndClic.play(); this.cameras.main.fadeOut(1000); this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('EscenaSeleccion')); });
     }
 }
@@ -81,10 +85,12 @@ class EscenaSeleccion extends Phaser.Scene {
         this.load.image('btn_novia', 'img/novia_frente.png');
     }
     create() {
-        this.add.image(600, 300, 'fondo_menu').setDisplaySize(1200, 600).setAlpha(0.5);
-        this.add.text(600, 100, 'ELIGE TU PERSONAJE', { fontSize: '40px', fill: '#fff', fontFamily: 'Cinzel Decorative' }).setOrigin(0.5);
-        const n = this.add.image(400, 350, 'btn_novio').setScale(1.8).setInteractive({ useHandCursor: true });
-        const m = this.add.image(800, 350, 'btn_novia').setScale(1.8).setInteractive({ useHandCursor: true });
+        const midX = this.cameras.main.width / 2;
+        const midY = this.cameras.main.height / 2;
+        this.add.image(midX, midY, 'fondo_menu').setDisplaySize(this.cameras.main.width, this.cameras.main.height).setAlpha(0.5);
+        this.add.text(midX, 100, 'ELIGE TU PERSONAJE', { fontSize: '40px', fill: '#fff', fontFamily: 'Cinzel Decorative' }).setOrigin(0.5);
+        const n = this.add.image(midX - 200, midY + 50, 'btn_novio').setScale(1.8).setInteractive({ useHandCursor: true });
+        const m = this.add.image(midX + 200, midY + 50, 'btn_novia').setScale(1.8).setInteractive({ useHandCursor: true });
         n.on('pointerup', () => { personajeElegido = 'novio'; this.scene.start('EscenaJuego'); });
         m.on('pointerup', () => { personajeElegido = 'novia'; this.scene.start('EscenaJuego'); });
     }
@@ -123,16 +129,16 @@ class EscenaJuego extends Phaser.Scene {
     }
 
     create() {
-        // Habilitar 2 toques simultáneos para móvil
-        this.input.addPointer(2);
+        // Habilitar 3 toques simultáneos para móvil
+        this.input.addPointer(3);
 
         const anchoNivel = 6000; 
         this.juegoTerminado = false;
         this.puntos = 0;
         this.invulnerable = false;
 
-        this.bgLejano = this.add.tileSprite(0, 0, 1200, 600, 'lejano').setOrigin(0).setScrollFactor(0);
-        this.bgMedio = this.add.tileSprite(0, 0, 1200, 600, 'medio').setOrigin(0).setScrollFactor(0);
+        this.bgLejano = this.add.tileSprite(0, 0, this.cameras.main.width, 600, 'lejano').setOrigin(0).setScrollFactor(0);
+        this.bgMedio = this.add.tileSprite(0, 0, this.cameras.main.width, 600, 'medio').setOrigin(0).setScrollFactor(0);
         
         this.physics.world.setBounds(0, 0, anchoNivel, 600);
         this.sueloGroup = this.physics.add.staticGroup();
@@ -180,43 +186,22 @@ class EscenaJuego extends Phaser.Scene {
 
     crearControlesMovil() {
         this.btnIzq = false; this.btnDer = false; this.btnSalto = false;
-
-        // Esto obliga a Phaser a sincronizar el touch con el tamaño real de la pantalla
-        this.input.scaleManager.on('resize', () => {
-            this.input.manager.setHitType(0); 
-        });
+        const altoP = this.cameras.main.height;
+        const anchoP = this.cameras.main.width;
 
         const setupBtn = (x, y, txt, prop) => {
-            // Creamos el círculo visual
-            let b = this.add.circle(x, y, 75, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000);
-            this.add.text(x, y, txt, { fontSize: '60px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
+            let b = this.add.circle(x, y, 75, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000).setInteractive();
+            this.add.text(x, y, txt, { fontSize: '55px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
             
-            // Creamos un área de interacción invisible MUCHO más grande para que no falle el dedo
-            let zonaInteraccion = this.add.circle(x, y, 100, 0x000000, 0)
-                .setScrollFactor(0)
-                .setDepth(5002)
-                .setInteractive({ useHandCursor: true });
-
-            zonaInteraccion.on('pointerdown', (pointer) => { 
-                this[prop] = true; 
-                b.setAlpha(0.5); 
-            });
-            
-            zonaInteraccion.on('pointerup', () => { 
-                this[prop] = false; 
-                b.setAlpha(0.2); 
-            });
-
-            zonaInteraccion.on('pointerout', () => { 
-                this[prop] = false; 
-                b.setAlpha(0.2); 
-            });
+            b.on('pointerdown', () => { this[prop] = true; b.setAlpha(0.5); });
+            b.on('pointerup', () => { this[prop] = false; b.setAlpha(0.2); });
+            b.on('pointerout', () => { this[prop] = false; b.setAlpha(0.2); });
         };
 
-        // Posiciones ajustadas para que no estén tan pegadas al borde
-        setupBtn(150, 480, '◀', 'btnIzq');
-        setupBtn(320, 480, '▶', 'btnDer');
-        setupBtn(1050, 480, '▲', 'btnSalto');
+        // Posicionamiento relativo al ancho de pantalla
+        setupBtn(120, altoP - 100, '◀', 'btnIzq');
+        setupBtn(280, altoP - 100, '▶', 'btnDer');
+        setupBtn(anchoP - 120, altoP - 100, '▲', 'btnSalto');
     }
 
     configurarCajasYMonedas(coordsPlat) {
@@ -352,8 +337,10 @@ class EscenaJuego extends Phaser.Scene {
     }
 
     mostrarBotonesFinales() {
-        let btnConf = this.add.image(400, 300, 'boton_confirmar').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
-        let btnMap = this.add.image(800, 300, 'boton_localizacion').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
+        const midX = this.cameras.main.width / 2;
+        const midY = this.cameras.main.height / 2;
+        let btnConf = this.add.image(midX - 200, midY, 'boton_confirmar').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
+        let btnMap = this.add.image(midX + 200, midY, 'boton_localizacion').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         this.tweens.add({ targets: [btnConf, btnMap], scale: 1, duration: 800, ease: 'Back.easeOut', delay: 300 });
         btnConf.on('pointerup', () => { window.open('https://wa.me/34600000000', '_blank'); });
         btnMap.on('pointerup', () => { window.open(`https://www.google.com/maps/search/?api=1&query=Aranjuez`, '_blank'); });
@@ -363,10 +350,8 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        mode: Phaser.Scale.FIT, // FIT asegura que el juego se vea entero en cualquier pantalla
+        mode: Phaser.Scale.RESIZE, 
         autoCenter: Phaser.Scale.CENTER_BOTH, 
-        width: 1200, 
-        height: 600, 
         parent: 'game-container' 
     },
     physics: { default: 'arcade', arcade: { gravity: { y: 1900 } } },
