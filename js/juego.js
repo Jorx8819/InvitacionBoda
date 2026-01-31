@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 💍 INVITACIÓN DE BODA MÁGICA - VERSIÓN FINAL NETLIFY
+ * 💍 INVITACIÓN DE BODA MÁGICA - VERSIÓN FINAL CORREGIDA
  * ============================================================================
  */
 
@@ -100,7 +100,6 @@ class EscenaSeleccion extends Phaser.Scene {
 class EscenaJuego extends Phaser.Scene {
     constructor() { super('EscenaJuego'); }
     preload() {
-        // Asegúrate de que estos nombres coinciden con tus archivos en minúsculas
         this.load.image('lejano', 'img/fondo_lejano.jpg');
         this.load.image('medio', 'img/fondo_medio.jpg');
         this.load.image('suelo', 'img/suelo.png');
@@ -133,11 +132,10 @@ class EscenaJuego extends Phaser.Scene {
         const anchoNivel = 6000;
         this.juegoTerminado = false; this.puntos = 0; this.invulnerable = false;
         
-        // Ajuste de fondo para cubrir toda la pantalla
-        this.bgLejano = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'lejano').setOrigin(0).setScrollFactor(0);
-        this.bgMedio = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'medio').setOrigin(0).setScrollFactor(0);
+        // CORRECCIÓN: Los fondos ahora cubren el ancho total del nivel
+        this.bgLejano = this.add.tileSprite(0, 0, anchoNivel, 600, 'lejano').setOrigin(0).setScrollFactor(0);
+        this.bgMedio = this.add.tileSprite(0, 0, anchoNivel, 600, 'medio').setOrigin(0).setScrollFactor(0);
         
-        // Ajustamos la altura del mundo físico
         this.physics.world.setBounds(0, 0, anchoNivel, this.cameras.main.height);
         
         const sueloY = this.cameras.main.height - 15;
@@ -250,8 +248,6 @@ class EscenaJuego extends Phaser.Scene {
         this.juegoTerminado = true; 
         this.jugador.setVelocity(0); 
         this.textoPuntos.setVisible(false);
-        
-        // IMPORTANTE: Detenemos la cámara para que los botones no "bailen"
         this.cameras.main.stopFollow();
 
         if (personajeElegido === 'novio') { this.jugador.setTexture('novio_fin'); this.pareja.setTexture('novia_fin'); }
@@ -270,7 +266,6 @@ class EscenaJuego extends Phaser.Scene {
         let m = "¡GUAU! ¡VIVAN LOS NOVIOS!\nTODOS LOS PERROS SON BIENVENIDOS";
         if (this.puntos >= 10) m = "¡INCREÍBLE! HAS RECOGIDO TODO EL AMOR.\n¡NOS VEMOS EL 4 DE JULIO!";
         
-        // Depth 9999 para que salga encima de todo
         this.txtPerro = this.add.text(this.perro.x, this.perro.y - 120, "", { 
             fontSize: '24px', fill: '#ffd700', fontFamily: 'Cinzel Decorative', 
             align: 'center', stroke: '#000', strokeThickness: 5 
@@ -290,11 +285,9 @@ class EscenaJuego extends Phaser.Scene {
         });
     }
     mostrarBotonesFinales() {
-        // Al detener la cámara, usamos la posición de la cámara + la mitad de su tamaño
         const camX = this.cameras.main.scrollX + (this.cameras.main.width / 2);
         const camY = this.cameras.main.scrollY + (this.cameras.main.height / 2);
 
-        // Depth muy alto (10000)
         let bC = this.add.image(camX - 160, camY, 'boton_confirmar').setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         let bM = this.add.image(camX + 160, camY, 'boton_localizacion').setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         
@@ -308,7 +301,8 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        mode: Phaser.Scale.ENVELOP, 
+        // CORRECCIÓN: FIT asegura que el juego se adapte sin recortar contenido
+        mode: Phaser.Scale.FIT, 
         autoCenter: Phaser.Scale.CENTER_BOTH, 
         parent: 'game-container',
         width: 1024,
