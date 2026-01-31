@@ -78,7 +78,7 @@ class EscenaIntro extends Phaser.Scene {
         this.papel.add([hoja, this.textoMagico]);
         this.sobreContainer.add([this.papel, this.trasera, this.textoAd, this.frontal, this.solapa]);
 
-        this.crearBotonCristalMistico(midX, midY + 220);
+        this.crearBotonCristalMistico(midX, midY + 100);
     }
 
     crearBotonCristalMistico(x, y) {
