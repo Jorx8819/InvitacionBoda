@@ -189,17 +189,18 @@ class EscenaJuego extends Phaser.Scene {
     configurarCajasYMonedas(cp) {
         this.textoCartel = this.add.text(0, 0, '', { fontSize: '20px', fill: '#fff', backgroundColor: '#8b0000', padding: { x: 15, y: 10 }, align: 'center', wordWrap: { width: 300 } }).setOrigin(0.5, 1).setVisible(false).setDepth(2000).setStroke('#d4af37', 4);
         const tc = (personajeElegido === 'novio') ? 'caja_j' : 'caja_c';
-        const ms = ["¡COMIENZA LA AVENTURA!", "CUIDADO CON LAS POCIONES...", "EL 4 DE JULIO DE 2026", "EN ARANJUEZ NOS VEMOS", "TRAED VUESTRAS VARITAS", "¡VIVAN LOS NOVIOS!"];
+        const ms = ["¡BIENVENIDO, MUGGLE, A NUESTRA AVENTURA MÁGICA!", "LA INVITACIÓN TE ELIGIÓ A TI, COMO LA VARITA AL MAGO.", "JURAMOS SOLEMNEMENTE QUE ESTO SERÁ ÉPICO.", "EL 04.07.2026 NO ACEPTAMOS UN 'GAME OVER'.", "¡TODO EL MUNDO A FINCA PICO VIVERO!", "¡ERES UN CRACK! AHORA VE A CONFIRMAR."];
+        
         this.monedas = this.physics.add.group();
-        const monedaY = this.cameras.main.height - 220;
-        const cajaY = this.cameras.main.height - 320;
+        const monedaY = 600 - 220; // Usamos 600 fijo para asegurar que no se mueva el suelo
+        const cajaY = 600 - 320;
         
         cp.forEach((px, i) => {
             this.monedas.create(px, monedaY, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false);
             let c = this.add.sprite(px + 60, cajaY, tc); this.physics.add.existing(c, true);
             c.mensaje = ms[i] || "¡MÁGICO!"; c.disponible = true; this.vincularColisionCaja(c);
         });
-        const extraY = this.cameras.main.height - 120;
+        const extraY = 600 - 120;
         for(let j=0; j<5; j++) { this.monedas.create(600 + (j * 1100), extraY, 'moneda_pixel').setScale(1.2).body.setAllowGravity(false); }
         this.physics.add.overlap(this.jugador, this.monedas, (p, m) => { m.destroy(); this.puntos++; this.textoPuntos.setText(`MONEDAS: ${this.puntos}/10`); this.sndCollect.play(); });
     }
@@ -321,4 +322,5 @@ window.addEventListener('load', () => {
     setTimeout(() => { 
         if (game.scale) { game.scale.refresh(); }
     }, 400); 
+
 });
