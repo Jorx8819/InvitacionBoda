@@ -254,7 +254,8 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        mode: Phaser.Scale.FIT, 
+        // Cambiamos FIT por ENVELOP para eliminar bordes negros
+        mode: Phaser.Scale.ENVELOP, 
         autoCenter: Phaser.Scale.CENTER_BOTH, 
         parent: 'game-container',
         width: 1024,
@@ -267,10 +268,9 @@ const config = {
     scene: [EscenaIntro, EscenaSeleccion, EscenaJuego]
 };
 
-// 1. Declaramos el juego (UNA SOLA VEZ)
+// Asegúrate de tener esto SOLO UNA VEZ al final
 const game = new Phaser.Game(config);
 
-// 2. Ajuste de seguridad para iPhone/Tablets
 window.addEventListener('load', () => { 
     setTimeout(() => { 
         if (game.scale) {
