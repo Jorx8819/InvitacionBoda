@@ -265,7 +265,7 @@ class EscenaJuego extends Phaser.Scene {
     }
     escribirMensajePerro() {
         let m = "¡GUAU! ¡VIVAN LOS NOVIOS!\nTODOS LOS PERROS SON BIENVENIDOS";
-        if (this.puntos >= 10) m = "¡INCREÍBLE! HAS RECOGIDO TODO EL AMOR.\n¡NOS VEMOS EL 4 DE JULIO!";
+        if (this.puntos >= 10) m = "¡INCREÍBLE! HAS RECOGIDO TODAS LAS MONEDAS.\n¡NOS VEMOS EL 4 DE JULIO!¡LOS PERROS SON BIENVENIDOS!";
         
         this.txtPerro = this.add.text(this.perro.x, this.perro.y - 120, "", { 
             fontSize: '24px', fill: '#ffd700', fontFamily: 'Cinzel Decorative', 
@@ -324,3 +324,4 @@ window.addEventListener('load', () => {
     }, 400); 
 
 });
+
