@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY (PLATAFORMAS ATRAVESABLES)
+ * 💍 INVITACIÓN DE BODA MÁGICA - JORGE & CONXY (VERSIÓN MÓVIL TOTAL)
  * ============================================================================
  */
 
@@ -123,6 +123,9 @@ class EscenaJuego extends Phaser.Scene {
     }
 
     create() {
+        // Habilitar 2 toques simultáneos para móvil
+        this.input.addPointer(2);
+
         const anchoNivel = 6000; 
         this.juegoTerminado = false;
         this.puntos = 0;
@@ -132,17 +135,13 @@ class EscenaJuego extends Phaser.Scene {
         this.bgMedio = this.add.tileSprite(0, 0, 1200, 600, 'medio').setOrigin(0).setScrollFactor(0);
         
         this.physics.world.setBounds(0, 0, anchoNivel, 600);
-        
-        // SUELO
         this.sueloGroup = this.physics.add.staticGroup();
         for (let x = 0; x < anchoNivel; x += 32) { this.sueloGroup.create(x, 585, 'suelo').refreshBody(); }
 
-        // PLATAFORMAS CON COLISIÓN SOLO SUPERIOR
         this.plataformas = this.physics.add.group({ allowGravity: false, immovable: true });
         const coordsPlat = [1200, 2100, 3000, 3900, 4800];
         coordsPlat.forEach(px => {
             let plat = this.plataformas.create(px, 460, 'plataforma');
-            // Desactivamos colisión inferior y lateral
             plat.body.checkCollision.down = false;
             plat.body.checkCollision.left = false;
             plat.body.checkCollision.right = false;
@@ -171,12 +170,35 @@ class EscenaJuego extends Phaser.Scene {
         this.sndCollect = this.sound.add('collect', { volume: 0.5 });
         this.sndBump = this.sound.add('bump', { volume: 0.5 });
 
-        this.crearControlesMovil();
         this.configurarCajasYMonedas(coordsPlat); 
         this.crearObstaculos();
+        this.crearControlesMovil();
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.physics.add.overlap(this.jugador, this.pareja, () => this.finalizarJuego());
+    }
+
+    crearControlesMovil() {
+        this.btnIzq = false; this.btnDer = false; this.btnSalto = false;
+
+        const pad = 100; // Margen desde las esquinas
+        
+        // Función para crear botones que detectan multitouch correctamente
+        const setupBtn = (x, y, txt, prop) => {
+            let b = this.add.circle(x, y, 70, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000).setInteractive();
+            this.add.text(x, y, txt, { fontSize: '50px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
+            
+            b.on('pointerdown', () => { this[prop] = true; b.setAlpha(0.5); });
+            b.on('pointerup', () => { this[prop] = false; b.setAlpha(0.2); });
+            b.on('pointerout', () => { this[prop] = false; b.setAlpha(0.2); });
+        };
+
+        // Izquierda y Derecha en la esquina inferior izquierda
+        setupBtn(100, 500, '◀', 'btnIzq');
+        setupBtn(260, 500, '▶', 'btnDer');
+
+        // Salto en la esquina inferior derecha
+        setupBtn(1100, 500, '▲', 'btnSalto');
     }
 
     configurarCajasYMonedas(coordsPlat) {
@@ -193,13 +215,9 @@ class EscenaJuego extends Phaser.Scene {
         ];
 
         this.monedas = this.physics.add.group();
-
         coordsPlat.forEach((px, i) => {
-            // Moneda Grande sobre plataforma
             let m = this.monedas.create(px, 380, 'moneda_pixel').setScale(1.2);
             m.body.setAllowGravity(false);
-
-            // Caja sobre plataforma
             let c = this.add.sprite(px + 60, 280, texturaCaja);
             this.physics.add.existing(c, true);
             c.mensaje = mensajes[i] || "¡MÁGICO!";
@@ -259,15 +277,27 @@ class EscenaJuego extends Phaser.Scene {
         if (this.juegoTerminado) return;
         this.bgLejano.tilePositionX = this.cameras.main.scrollX * 0.3;
         this.bgMedio.tilePositionX = this.cameras.main.scrollX * 0.6;
+
         const izq = this.cursors.left.isDown || this.btnIzq;
         const der = this.cursors.right.isDown || this.btnDer;
+        const salto = this.cursors.up.isDown || this.btnSalto;
+
         if (!this.invulnerable) {
-            if (izq) { this.jugador.setVelocityX(-320).setTexture(personajeElegido + '_izq'); }
-            else if (der) { this.jugador.setVelocityX(320).setTexture(personajeElegido + '_der'); if(!this.musicaFondo.isPlaying) this.musicaFondo.play(); }
-            else { this.jugador.setVelocityX(0).setTexture(personajeElegido + '_frente'); }
+            if (izq) { 
+                this.jugador.setVelocityX(-320).setTexture(personajeElegido + '_izq'); 
+            }
+            else if (der) { 
+                this.jugador.setVelocityX(320).setTexture(personajeElegido + '_der'); 
+                if(!this.musicaFondo.isPlaying) this.musicaFondo.play(); 
+            }
+            else { 
+                this.jugador.setVelocityX(0).setTexture(personajeElegido + '_frente'); 
+            }
         }
-        if ((this.cursors.up.isDown || this.btnSalto) && this.jugador.body.touching.down) { 
-            this.jugador.setVelocityY(-850); this.sndSalto.play(); 
+
+        if (salto && this.jugador.body.touching.down) { 
+            this.jugador.setVelocityY(-850); 
+            this.sndSalto.play(); 
         }
     }
 
@@ -308,22 +338,19 @@ class EscenaJuego extends Phaser.Scene {
         let btnMap = this.add.image(800, 300, 'boton_localizacion').setScrollFactor(0).setDepth(10000).setScale(0).setInteractive({useHandCursor:true});
         this.tweens.add({ targets: [btnConf, btnMap], scale: 1, duration: 800, ease: 'Back.easeOut', delay: 300 });
         btnConf.on('pointerup', () => { window.open('https://wa.me/34600000000', '_blank'); });
-        btnMap.on('pointerup', () => { window.open(`https://www.google.com/maps/place/Finca+Pico+Vivero/@40.050662,-3.5507021,839m/data=!3m2!1e3!4b1!4m6!3m5!1s0xd420fa9e35abb8f:0xc86d4762fa483265!8m2!3d40.050658!4d-3.5458312!16s%2Fg%2F1tj9d961?entry=ttu&g_ep=EgoyMDI2MDEyOC4wIKXMDSoKLDEwMDc5MjA2OUgBUAM%3D`, '_blank'); });
-    }
-
-    crearControlesMovil() {
-        const crearBtn = (x, y, txt, k) => {
-            let b = this.add.circle(x, y, 55, 0x00ccff, 0.4).setScrollFactor(0).setDepth(5000).setInteractive();
-            this.add.text(x, y, txt, { fontSize: '40px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
-            b.on('pointerdown', () => this[k] = true); b.on('pointerup', () => this[k] = false);
-        };
-        crearBtn(120, 500, '←', 'btnIzq'); crearBtn(280, 500, '→', 'btnDer'); crearBtn(1080, 500, '↑', 'btnSalto');
+        btnMap.on('pointerup', () => { window.open(`https://www.google.com/maps/search/?api=1&query=Aranjuez`, '_blank'); });
     }
 }
 
 const config = {
     type: Phaser.AUTO,
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 1200, height: 600, parent: 'game-container' },
+    scale: { 
+        mode: Phaser.Scale.ENVELOP, // LLENA TODA LA PANTALLA
+        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        width: 1200, 
+        height: 600, 
+        parent: 'game-container' 
+    },
     physics: { default: 'arcade', arcade: { gravity: { y: 1900 } } },
     scene: [EscenaIntro, EscenaSeleccion, EscenaJuego]
 };
