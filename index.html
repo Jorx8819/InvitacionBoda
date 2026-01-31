@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nuestra Invitación</title>
+    <title>Nuestra Invitación Mágica 💍</title>
 
     <meta property="og:title" content="¡Estáis invitados a nuestra boda mágica!">
     <meta property="og:description" content="Aceptad el desafío para descubrir los detalles.">
     <meta property="og:image" content="https://jorx8819.github.io/InvitacionBoda/img/fondo.jpg">
-    <meta property="og:type" content="website">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     
@@ -26,7 +25,8 @@
 
         #game-container { 
             width: 100vw; 
-            height: 100svh; /* svh es vital para móviles modernos */
+            height: 100vh; 
+            height: 100svh; /* Altura especial para móviles */
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -38,6 +38,7 @@
             object-fit: contain; 
         }
 
+        /* Aviso de rotación */
         @media screen and (orientation: portrait) {
             #game-container::after {
                 content: "🔄 Por favor, gira el móvil horizontal para jugar";
@@ -54,6 +55,7 @@
                 text-align: center;
                 padding: 20px;
                 z-index: 9999;
+                font-size: 1.2rem;
             }
         }
     </style>
