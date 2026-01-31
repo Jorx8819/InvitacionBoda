@@ -181,24 +181,42 @@ class EscenaJuego extends Phaser.Scene {
     crearControlesMovil() {
         this.btnIzq = false; this.btnDer = false; this.btnSalto = false;
 
-        const pad = 100; // Margen desde las esquinas
-        
-        // Función para crear botones que detectan multitouch correctamente
+        // Esto obliga a Phaser a sincronizar el touch con el tamaño real de la pantalla
+        this.input.scaleManager.on('resize', () => {
+            this.input.manager.setHitType(0); 
+        });
+
         const setupBtn = (x, y, txt, prop) => {
-            let b = this.add.circle(x, y, 70, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000).setInteractive();
-            this.add.text(x, y, txt, { fontSize: '50px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
+            // Creamos el círculo visual
+            let b = this.add.circle(x, y, 75, 0xffffff, 0.2).setScrollFactor(0).setDepth(5000);
+            this.add.text(x, y, txt, { fontSize: '60px' }).setOrigin(0.5).setScrollFactor(0).setDepth(5001);
             
-            b.on('pointerdown', () => { this[prop] = true; b.setAlpha(0.5); });
-            b.on('pointerup', () => { this[prop] = false; b.setAlpha(0.2); });
-            b.on('pointerout', () => { this[prop] = false; b.setAlpha(0.2); });
+            // Creamos un área de interacción invisible MUCHO más grande para que no falle el dedo
+            let zonaInteraccion = this.add.circle(x, y, 100, 0x000000, 0)
+                .setScrollFactor(0)
+                .setDepth(5002)
+                .setInteractive({ useHandCursor: true });
+
+            zonaInteraccion.on('pointerdown', (pointer) => { 
+                this[prop] = true; 
+                b.setAlpha(0.5); 
+            });
+            
+            zonaInteraccion.on('pointerup', () => { 
+                this[prop] = false; 
+                b.setAlpha(0.2); 
+            });
+
+            zonaInteraccion.on('pointerout', () => { 
+                this[prop] = false; 
+                b.setAlpha(0.2); 
+            });
         };
 
-        // Izquierda y Derecha en la esquina inferior izquierda
-        setupBtn(100, 500, '◀', 'btnIzq');
-        setupBtn(260, 500, '▶', 'btnDer');
-
-        // Salto en la esquina inferior derecha
-        setupBtn(1100, 500, '▲', 'btnSalto');
+        // Posiciones ajustadas para que no estén tan pegadas al borde
+        setupBtn(150, 480, '◀', 'btnIzq');
+        setupBtn(320, 480, '▶', 'btnDer');
+        setupBtn(1050, 480, '▲', 'btnSalto');
     }
 
     configurarCajasYMonedas(coordsPlat) {
