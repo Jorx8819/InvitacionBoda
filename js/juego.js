@@ -345,7 +345,7 @@ class EscenaJuego extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scale: { 
-        mode: Phaser.Scale.ENVELOP, // LLENA TODA LA PANTALLA
+        mode: Phaser.Scale.FIT, // FIT asegura que el juego se vea entero en cualquier pantalla
         autoCenter: Phaser.Scale.CENTER_BOTH, 
         width: 1200, 
         height: 600, 
