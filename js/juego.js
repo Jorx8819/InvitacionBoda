@@ -260,7 +260,10 @@ const config = {
         width: 1024,
         height: 600
     },
-    physics: { default: 'arcade', arcade: { gravity: { y: 1900 } } },
+    physics: { default: 'arcade', arcade: { gravity: { y: 1900 }, debug: false } 
+            
+    },
+
     scene: [EscenaIntro, EscenaSeleccion, EscenaJuego]
 };
 
